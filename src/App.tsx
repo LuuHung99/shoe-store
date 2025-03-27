@@ -14,13 +14,9 @@ import Wishlist from "./components/wishlist";
 import Account from "./components/account";
 import Login from "./components/login";
 import ProtectedRoute from "./components/ProtectedRoute";
-import routes from "tempo-routes";
-import { getToken } from "./services/authService";
 import PublicRoute from "./components/PublicRoute";
 
 function App() {
-  const token = getToken();
-
   return (
     <Provider store={store}>
       <Suspense
@@ -49,7 +45,7 @@ function App() {
               <Route path="/product/:id" element={<Product />} />
             </Route>
           </Routes>
-          <Toaster position="top-center" richColors />
+          <Toaster position="top-right" richColors />
         </>
       </Suspense>
     </Provider>
