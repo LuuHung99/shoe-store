@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../store/features/cartSlice";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import { Button } from "../ui/button";
@@ -23,7 +25,7 @@ interface Product {
   isNew: boolean;
   category: string;
   description?: string;
-  sizes?: string[];
+  sizes?: number[];
   colors?: { name: string; value: string }[];
   rating?: number;
   reviews?: number;
@@ -32,6 +34,7 @@ interface Product {
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const dispatch = useDispatch();
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
@@ -49,7 +52,7 @@ const ProductDetail = () => {
     category: "Running",
     description:
       "The Nike Air Max 270 delivers a plush ride with a large Max Air unit in the heel and a lifestyle-focused design. The sleek, running-inspired look combines with a comfortable, supportive feel for all-day wear.",
-    sizes: ["US 7", "US 8", "US 9", "US 10", "US 11", "US 12"],
+    sizes: [7, 8, 9, 10, 11, 12],
     colors: [
       { name: "Black", value: "#000000" },
       { name: "White", value: "#FFFFFF" },
@@ -109,6 +112,8 @@ const ProductDetail = () => {
     if (value >= 1) setQuantity(value);
   };
 
+  const handleAddToCart = () => {};
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
@@ -149,7 +154,9 @@ const ProductDetail = () => {
                   {product.images.map((image, index) => (
                     <div
                       key={index}
-                      className={`aspect-square overflow-hidden rounded-md cursor-pointer ${index === activeImage ? "ring-2 ring-primary" : ""}`}
+                      className={`aspect-square overflow-hidden rounded-md cursor-pointer ${
+                        index === activeImage ? "ring-2 ring-primary" : ""
+                      }`}
                       onClick={() => setActiveImage(index)}
                     >
                       <img
@@ -177,7 +184,11 @@ const ProductDetail = () => {
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`h-4 w-4 ${i < Math.floor(product.rating || 0) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}
+                      className={`h-4 w-4 ${
+                        i < Math.floor(product.rating || 0)
+                          ? "text-yellow-400 fill-yellow-400"
+                          : "text-gray-300"
+                      }`}
                     />
                   ))}
                   <span className="ml-2 text-sm text-gray-600">
@@ -219,7 +230,11 @@ const ProductDetail = () => {
                       <button
                         key={color.name}
                         type="button"
-                        className={`w-8 h-8 rounded-full border ${selectedColor === color.name ? "ring-2 ring-primary ring-offset-2" : "border-gray-300"}`}
+                        className={`w-8 h-8 rounded-full border ${
+                          selectedColor === color.name
+                            ? "ring-2 ring-primary ring-offset-2"
+                            : "border-gray-300"
+                        }`}
                         style={{ backgroundColor: color.value }}
                         onClick={() => setSelectedColor(color.name)}
                         title={color.name}
@@ -243,14 +258,18 @@ const ProductDetail = () => {
                   </div>
                   <div className="grid grid-cols-4 gap-2">
                     {product.sizes.map((size) => (
-                      <button
+                      <Button
                         key={size}
-                        type="button"
-                        className={`py-2 px-3 text-sm font-medium rounded-md ${selectedSize === size ? "bg-primary text-white" : "bg-gray-100 text-gray-900 hover:bg-gray-200"}`}
-                        onClick={() => setSelectedSize(size)}
+                        variant="outline"
+                        className={`py-2 px-3 text-sm font-medium rounded-md ${
+                          selectedSize === size.toString()
+                            ? "bg-primary text-white"
+                            : "bg-gray-100 text-gray-900 hover:bg-gray-200"
+                        }`}
+                        onClick={() => setSelectedSize(size.toString())}
                       >
                         {size}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 </div>
@@ -262,35 +281,29 @@ const ProductDetail = () => {
                   Quantity
                 </h3>
                 <div className="flex items-center">
-                  <button
-                    type="button"
-                    className="w-10 h-10 bg-gray-100 rounded-l-md flex items-center justify-center hover:bg-gray-200"
-                    onClick={() => handleQuantityChange(quantity - 1)}
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() =>
+                      handleQuantityChange(Math.max(1, quantity - 1))
+                    }
                   >
                     -
-                  </button>
-                  <input
-                    type="number"
-                    min="1"
-                    value={quantity}
-                    onChange={(e) =>
-                      handleQuantityChange(parseInt(e.target.value) || 1)
-                    }
-                    className="w-12 h-10 text-center border-y border-gray-200"
-                  />
-                  <button
-                    type="button"
-                    className="w-10 h-10 bg-gray-100 rounded-r-md flex items-center justify-center hover:bg-gray-200"
+                  </Button>
+                  <span className="text-lg font-medium">{quantity}</span>
+                  <Button
+                    variant="outline"
+                    size="icon"
                     onClick={() => handleQuantityChange(quantity + 1)}
                   >
                     +
-                  </button>
+                  </Button>
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <Button className="flex-1" size="lg">
+                <Button className="flex-1" size="lg" onClick={handleAddToCart}>
                   <ShoppingBag className="mr-2 h-5 w-5" /> Add to Cart
                 </Button>
                 <Button variant="outline" size="lg">
@@ -410,7 +423,11 @@ const ProductDetail = () => {
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
-                              className={`h-4 w-4 ${i < Math.floor(product.rating || 0) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}
+                              className={`h-4 w-4 ${
+                                i < Math.floor(product.rating || 0)
+                                  ? "text-yellow-400 fill-yellow-400"
+                                  : "text-gray-300"
+                              }`}
                             />
                           ))}
                         </div>
@@ -435,7 +452,11 @@ const ProductDetail = () => {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`h-4 w-4 ${i < 5 ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}
+                            className={`h-4 w-4 ${
+                              i < 5
+                                ? "text-yellow-400 fill-yellow-400"
+                                : "text-gray-300"
+                            }`}
                           />
                         ))}
                       </div>
@@ -458,7 +479,11 @@ const ProductDetail = () => {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`h-4 w-4 ${i < 4 ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}
+                            className={`h-4 w-4 ${
+                              i < 4
+                                ? "text-yellow-400 fill-yellow-400"
+                                : "text-gray-300"
+                            }`}
                           />
                         ))}
                       </div>
@@ -481,7 +506,11 @@ const ProductDetail = () => {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`h-4 w-4 ${i < 5 ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}
+                            className={`h-4 w-4 ${
+                              i < 5
+                                ? "text-yellow-400 fill-yellow-400"
+                                : "text-gray-300"
+                            }`}
                           />
                         ))}
                       </div>

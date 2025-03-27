@@ -153,7 +153,7 @@ const Products = () => {
     setSelectedCategories((prev) =>
       prev.includes(category)
         ? prev.filter((c) => c !== category)
-        : [...prev, category],
+        : [...prev, category]
     );
   };
 
@@ -161,16 +161,16 @@ const Products = () => {
     .filter(
       (product) =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.category.toLowerCase().includes(searchTerm.toLowerCase()),
+        product.category.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .filter(
       (product) =>
         selectedCategories.length === 0 ||
-        selectedCategories.includes(product.category),
+        selectedCategories.includes(product.category)
     )
     .filter(
       (product) =>
-        product.price >= priceRange[0] && product.price <= priceRange[1],
+        product.price >= priceRange[0] && product.price <= priceRange[1]
     )
     .sort((a, b) => {
       if (sortBy === "price-low-high") return a.price - b.price;

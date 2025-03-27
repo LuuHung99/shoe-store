@@ -32,7 +32,8 @@ const Blog = () => {
     },
     {
       id: "2",
-      title: "How to Choose the Perfect Basketball Shoes for Your Playing Style",
+      title:
+        "How to Choose the Perfect Basketball Shoes for Your Playing Style",
       excerpt:
         "Different positions and playing styles require different features in basketball footwear. Learn how to select the right pair for your game.",
       date: "June 10, 2024",
@@ -260,4 +261,29 @@ const Blog = () => {
                 </div>
 
                 {/* Recent Posts */}
-                <div className="bg-white rounded-lg shadow-sm p-6 mb
+                <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+                  <h3 className="text-lg font-bold mb-4">Recent Posts</h3>
+                  <ul className="space-y-2">
+                    {recentPosts.map((post) => (
+                      <li key={post.id}>
+                        <a
+                          href={`/blog/${post.slug}`}
+                          className="text-gray-600 hover:text-primary transition-colors"
+                        >
+                          {post.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+export default Blog;

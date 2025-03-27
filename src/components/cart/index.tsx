@@ -1,58 +1,25 @@
 import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../../store/store";
+import { removeFromCart, updateQuantity } from "../../store/features/cartSlice";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Minus, Plus, X, ShoppingBag } from "lucide-react";
 
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  quantity: number;
-  size: string;
-  color: string;
-}
-
 const Cart = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: "1",
-      name: "Nike Air Max 270",
-      price: 150,
-      image:
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&q=80",
-      quantity: 1,
-      size: "US 9",
-      color: "Black",
-    },
-    {
-      id: "2",
-      name: "Adidas Ultraboost 21",
-      price: 180,
-      image:
-        "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=500&q=80",
-      quantity: 2,
-      size: "US 10",
-      color: "White",
-    },
-  ]);
-
+  const dispatch = useDispatch();
+  const cartItems = useSelector((state: RootState) => state.cart.items);
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
 
-  const updateQuantity = (id: string, newQuantity: number) => {
+  const handleUpdateQuantity = (id: string, newQuantity: number) => {
     if (newQuantity < 1) return;
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item,
-      ),
-    );
   };
 
-  const removeItem = (id: string) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+  const handleRemoveItem = (id: string) => {
+    dispatch(removeFromCart(id));
   };
 
   const applyPromoCode = () => {
@@ -64,8 +31,8 @@ const Cart = () => {
   };
 
   const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
+    (sum, item) => sum + item.product.price * item.quantity,
+    0
   );
   const discount = promoApplied ? subtotal * 0.1 : 0;
   const shipping = subtotal > 100 ? 0 : 10;
@@ -90,37 +57,39 @@ const Cart = () => {
                     <div className="divide-y">
                       {cartItems.map((item) => (
                         <div
-                          key={item.id}
+                          key={item.product.id}
                           className="py-6 flex flex-wrap md:flex-nowrap"
                         >
                           <div className="w-full md:w-24 h-24 bg-gray-100 rounded-md overflow-hidden">
                             <img
-                              src={item.image}
-                              alt={item.name}
+                              src={item.product.image}
+                              alt={item.product.name}
                               className="w-full h-full object-cover"
                             />
                           </div>
                           <div className="flex-1 md:ml-6 mt-4 md:mt-0">
                             <div className="flex justify-between">
                               <h3 className="text-base font-medium">
-                                {item.name}
+                                {item.product.name}
                               </h3>
                               <button
-                                onClick={() => removeItem(item.id)}
+                                onClick={() =>
+                                  handleRemoveItem(item.product.id)
+                                }
                                 className="text-gray-400 hover:text-gray-600"
                               >
                                 <X className="h-5 w-5" />
                               </button>
-                            </div>
-                            <div className="mt-1 text-sm text-gray-500">
-                              Size: {item.size} | Color: {item.color}
                             </div>
                             <div className="mt-4 flex justify-between items-center">
                               <div className="flex items-center border rounded-md">
                                 <button
                                   className="p-2"
                                   onClick={() =>
-                                    updateQuantity(item.id, item.quantity - 1)
+                                    handleUpdateQuantity(
+                                      item.product.id,
+                                      item.quantity - 1
+                                    )
                                   }
                                 >
                                   <Minus className="h-4 w-4" />
@@ -129,14 +98,20 @@ const Cart = () => {
                                 <button
                                   className="p-2"
                                   onClick={() =>
-                                    updateQuantity(item.id, item.quantity + 1)
+                                    handleUpdateQuantity(
+                                      item.product.id,
+                                      item.quantity + 1
+                                    )
                                   }
                                 >
                                   <Plus className="h-4 w-4" />
                                 </button>
                               </div>
                               <div className="font-medium">
-                                ${(item.price * item.quantity).toFixed(2)}
+                                $
+                                {(item.product.price * item.quantity).toFixed(
+                                  2
+                                )}
                               </div>
                             </div>
                           </div>
